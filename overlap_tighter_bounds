@@ -1,0 +1,55 @@
+Pr(B_i \cap B_j) = t is 
+
+choose t elements in overlap
+
+N choose t
+
+N-t choose M - t
+N - 2t choose M-t
+
+divided by
+
+
+
+total number of ways to choose subsets: (N choose M)**2
+
+1 2 3 4 5 6 
+
+3
+
+1 2 3
+
+4 5 3
+
+
+N! / ((N-t)! t!) * (N-t)! / ((M-t)! (N-M)!) * (N-2t)! / ((M-t)! (N-M-t)!)
+
+= N! (N-2t)! / (t! (N-M)! (N-M-t)! (M-t)**2)
+
+sum_{t=0}^{T} N! (N-2t)! / (t! (N-M)! (N-M-t)! (M-t)!**2) 
+
+N! / (N-M)!
+
+f(t) / (N choose M)^2
+
+vs. 
+
+
+Pr(overlap = t) is f(t)
+
+Pr(overlap >= T) = 1-sum(t=0^T) f(t) = sum(t = T+1 ^M) f(t)
+
+vs. 
+
+
+
+sqrt(2*pi*N) (N)^N (N-2t)^(N-2t) / (e^(2N-2t)) 
+
+
+s
+
+
+
+
+
+
