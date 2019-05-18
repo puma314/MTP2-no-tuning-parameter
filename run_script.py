@@ -6,30 +6,29 @@ import pickle
 
 NUM_CORES = 10
 
-NUM_ITERS = 5
+NUM_ITERS = 10
 
 GraphParams = namedtuple('GraphParams', 'N eta p d ratios')
 AlgoParams = namedtuple('AlgoParams', 'stability_samples M pi')
 
+graph_params_dict = {
+    'chain': GraphParams(p=50, N=[20, 25, 30, 35, 40], eta=1, ratios=None, d=None), #p, N, eta
+    'star': GraphParams(p=50, d=[10, 15, 20, 25, 30], N=50, eta=1, ratios=None), #p, d, N, eta
+    'random': GraphParams(p=50, d=0.01, ratios=[r/500. for r in [300, 375, 500, 750, 1000]], eta=1, N=None), #p, d, ratio over 500, eta
+    'grid_3D': GraphParams(p=4, ratios=[r/524. for r in [200, 250, 300, 400, 500]], eta=2, N=None, d=None), #p, ratio over 524, eta
+    'grid': GraphParams(p=7, ratios=[r/529. for r in [75, 100, 150, 200, 250]], eta=2, N=None, d=None) #p, ratio over 529, eta
+}
+
 # graph_params_dict = {
-#     'chain': GraphParams(p=50, N=[20, 25, 30, 35, 40], eta=1, ratios=None, d=None), #p, N, eta
-#     'star': GraphParams(p=50, d=[10, 15, 20, 25, 30], N=50, eta=1, ratios=None), #p, d, N, eta
-#     'random': GraphParams(p=50, d=0.01, ratios=[r/500. for r in [300, 375, 500, 750, 1000]], eta=1, N=None), #p, d, ratio over 500, eta
-#     'grid_3D': GraphParams(p=4, ratios=[r/524. for r in [200, 250, 300, 400, 500]], eta=2, N=None, d=None), #p, ratio over 524, eta
-#     'grid': GraphParams(p=7, ratios=[r/529. for r in [75, 100, 150, 200, 250]], eta=2, N=None, d=None) #p, ratio over 529, eta
+#     'chain': GraphParams(p=20, N=[20, 25, 30, 35, 40], eta=1, ratios=None, d=None), #p, N, eta
+#     'star': GraphParams(p=20, d=[10, 15, 20, 25, 30], N=50, eta=1, ratios=None), #p, d, N, eta
+#     'random': GraphParams(p=20, d=0.01, ratios=[r/500. for r in [300, 375, 500, 750, 1000]], eta=1, N=None), #p, d, ratio over 500, eta
+#     'grid_3D': GraphParams(p=2, ratios=[r/524. for r in [200, 250, 300, 400, 500]], eta=2, N=None, d=None), #p, ratio over 524, eta
+#     'grid': GraphParams(p=3, ratios=[r/529. for r in [75, 100, 150, 200, 250]], eta=2, N=None, d=None) #p, ratio over 529, eta
 # }
 
 
-graph_params_dict = {
-    'chain': GraphParams(p=20, N=[20, 25, 30, 35, 40], eta=1, ratios=None, d=None), #p, N, eta
-    'star': GraphParams(p=20, d=[10, 15, 20, 25, 30], N=50, eta=1, ratios=None), #p, d, N, eta
-    'random': GraphParams(p=20, d=0.01, ratios=[r/500. for r in [300, 375, 500, 750, 1000]], eta=1, N=None), #p, d, ratio over 500, eta
-    'grid_3D': GraphParams(p=2, ratios=[r/524. for r in [200, 250, 300, 400, 500]], eta=2, N=None, d=None), #p, ratio over 524, eta
-    'grid': GraphParams(p=3, ratios=[r/529. for r in [75, 100, 150, 200, 250]], eta=2, N=None, d=None) #p, ratio over 529, eta
-}
-
-
-algo_params = AlgoParams(stability_samples=10, M=7./9., pi=0.7)
+algo_params = AlgoParams(stability_samples=50, M=7./9., pi=0.8)
 run_name = 'testrunsmallp'
 
 with open("{}_algo_params.pkl".format(run_name), 'wb') as f:
