@@ -186,6 +186,7 @@ def get_results(graph_params, algo_params, omega, N):
 			our_algo_res = algo(X, algo_params.M)
 			results = (our_algo_res, None, None)
 		else:
+			print("Trying {} with {}".format(algo_name, algo))
 			results = algo(X, lambdas, algo_params.pi)
 		ALL_RESULTS[algo_name] = results
 		omega_hat = results[0]

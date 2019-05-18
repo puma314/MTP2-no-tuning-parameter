@@ -255,13 +255,16 @@ def graphical_lasso_CV(data, lambdas):
 
 def SH_stability_wrapper(NUM_SUBSAMPLES):
     def SH_stability(data, lambdas, pi):
+        print("IN SH STABILITY")
         N, p = data.shape
         NUM_SUBSAMPLES = 10
         MTP2_precs = []
         subN = N//2
         for _ in range(NUM_SUBSAMPLES):
             batch = get_batch(data, subN)
+            print("running single MTP")
             MTP2res = run_single_MTP(np.cov(batch.T))
+            print('done with single MTP')
             MTP2_precs.append(MTP2res)
         
         edges = []
