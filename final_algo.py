@@ -13,11 +13,35 @@ def get_algo_lambdas(M, eta, N, p):
     algo_lambdas = {
         'our': M,
         'SH': get_SH_lambdas(),
-        'glasso': [0.1, 0.3, 0.5, 1.0],#long_lambdas(N, p),
-        'nbsel': [0.1, 0.3, 0.5, 1.0],
+        'glasso': [0.1, 0.5, 1.0, 2., 8.],#long_lambdas(N, p),
+        'nbsel': [0.1, 0.5, 1.0, 2., 8.],
         'anand': [(l, eta) for l in super_short_lambdas(N, p)]
     }
     return algo_lambdas
+
+def long_lambdas(n,p):
+    c = np.sqrt(np.log(p)/n)
+    ls = []
+    for a in [0.01, 0.05, 0.1, 0.3, 0.5, 1, 2, 4, 8, 16]:
+        ls.append(a*c)
+    return ls
+
+def short_lambdas(n,p):
+    c = np.sqrt(np.log(p)/n)
+    ls = []
+    for a in [0.01, 0.05, 0.1, 0.5, 1, 2, 8]:
+        ls.append(a*c)
+    return ls
+
+def super_short_lambdas(n,p):
+    c = np.sqrt(np.log(p)/n)
+    ls = []
+    for a in [0.1, 1, 8]:
+        ls.append(a*c)
+    return ls
+
+def get_SH_lambdas():
+    return [0.7, 0.8, 0.9, 0.95, 0.99, 1]
 
 def GET_ALGOS(NUM_SUBSAMPLES):
     anand_stab = stability_wrapper(anandkumar_algo, NUM_SUBSAMPLES)
@@ -190,30 +214,6 @@ def new_algo(X, m=0.85):
                             hypothesis_graph[j, i] = 0
                             stop = True
     return hypothesis_graph
-
-def long_lambdas(n,p):
-    c = np.sqrt(np.log(p)/n)
-    ls = []
-    for a in [0.01, 0.05, 0.1, 0.3, 0.5, 1, 2, 4, 8, 16]:
-        ls.append(a*c)
-    return ls
-
-def short_lambdas(n,p):
-    c = np.sqrt(np.log(p)/n)
-    ls = []
-    for a in [0.01, 0.05, 0.1, 0.5, 1, 2, 8]:
-        ls.append(a*c)
-    return ls
-
-def super_short_lambdas(n,p):
-    c = np.sqrt(np.log(p)/n)
-    ls = []
-    for a in [0.1, 1, 8]:
-        ls.append(a*c)
-    return ls
-
-def get_SH_lambdas():
-    return [0.7, 0.8, 0.9, 0.95, 0.99, 1]
 
 def glasso_vanilla(data, lamb):
     try:

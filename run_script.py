@@ -4,7 +4,9 @@ import sys
 import running_wrappers
 import pickle
 
-NUM_CORES = 6
+NUM_CORES = 10
+
+NUM_ITERS = 5
 
 GraphParams = namedtuple('GraphParams', 'N eta p d ratios')
 AlgoParams = namedtuple('AlgoParams', 'stability_samples M pi')
@@ -38,15 +40,39 @@ with open("{}_graph_params_dict.pkl".format(run_name), 'wb') as f:
 
 
 if __name__ == "__main__":
-	graph_type, num_iters = sys.argv[1], int(sys.argv[2])
-	assert graph_type in ['chain', 'star', 'random', 'grid_3D', 'grid']
-	wrapper = running_wrappers.WRAPPERS[graph_type]
-	graph_params = graph_params_dict[graph_type]
-	def run_num_wrapper(run_num):
+	# graph_type, num_iters = sys.argv[1], int(sys.argv[2])
+	# assert graph_type in ['chain', 'star', 'random', 'grid_3D', 'grid']
+	# wrapper = running_wrappers.WRAPPERS[graph_type]
+	# graph_params = graph_params_dict[graph_type]
+	# def run_num_wrapper(run_num):
+	# 	try:
+	# 		wrapper(graph_params, algo_params, run_name, run_num)
+	# 	except:
+	# 		print("ERROR on {}".format(run_num))
+
+	# with Pool(NUM_CORES) as p:
+	# 	p.map(run_num_wrapper, range(num_iters))
+
+	params = []
+	for run_num in range(NUM_ITERS):
+		for graph_type in ['chain', 'star', 'random', 'grid_3D', 'grid']:
+			params.append((graph_type, run_num))
+
+	def run_num_param_wrapper(args):
+		graph_type, run_num = args
+		print('Running on {} for {}'.format(graph_type, run_num))
+		wrapper = running_wrappers.WRAPPERS[graph_type]
+		graph_params = graph_params_dict[graph_type]
 		try:
 			wrapper(graph_params, algo_params, run_name, run_num)
 		except:
 			print("ERROR on {}".format(run_num))
 
+	print(params)
+
 	with Pool(NUM_CORES) as p:
-		p.map(run_num_wrapper, range(num_iters))
+		p.map(run_num_param_wrapper, params)
+
+
+
+

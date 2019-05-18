@@ -10,6 +10,7 @@ def grid_3D_wrapper(graph_params, algo_params, run_name, run_id):
 	p = graph_params.p
 	dim = p**3
 	Ns = [int(r*dim) for r in graph_params.ratios]
+	Ns = [x for x in Ns if x >= 10]
 	for r, N in zip(graph_params.ratios, Ns):
 		omega = grid_3D(p)
 		results = get_results(graph_params, algo_params, omega, N)
@@ -22,7 +23,7 @@ def grid_3D_loader(graph_params, algo_params, run_name, run_ids):
 	p = graph_params.p
 	dim = p**3
 	Ns = [int(r*dim) for r in graph_params.ratios]
-
+	Ns = [x for x in Ns if x >= 10]
 	loaded = defaultdict(list)
 	for r, N in zip(graph_params.ratios, Ns):
 		for run_id in run_ids:
@@ -37,6 +38,8 @@ def grid_wrapper(graph_params, algo_params, run_name, run_id):
 	p = graph_params.p
 	dim = p**2
 	Ns = [int(r*dim) for r in graph_params.ratios]
+	Ns = [x for x in Ns if x >= 10]
+
 	for r, N in zip(graph_params.ratios, Ns):
 		omega = grid_graphs(p)
 		results = get_results(graph_params, algo_params, omega, N)
@@ -49,6 +52,7 @@ def grid_loader(graph_params, algo_params, run_name, run_ids):
 	p = graph_params.p
 	dim = p**2
 	Ns = [int(r*dim) for r in graph_params.ratios]
+	Ns = [x for x in Ns if x >= 10]
 
 	loaded = defaultdict(list)
 	for r, N in zip(graph_params.ratios, Ns):
@@ -88,6 +92,8 @@ def random_wrapper(graph_params, algo_params, run_name, run_id):
 	d = graph_params.d
 	dim = p
 	Ns = [int(r*dim) for r in graph_params.ratios]
+	Ns = [x for x in Ns if x >= 10]
+
 	for r, N in zip(graph_params.ratios, Ns):
 		omega = random_graph(p,d)
 		inv_exists = False
@@ -108,6 +114,7 @@ def random_loader(graph_params, algo_params, run_name, run_ids):
 	d = graph_params.d
 	dim = p
 	Ns = [int(r*dim) for r in graph_params.ratios]
+	Ns = [x for x in Ns if x >= 10]
 
 	loaded = defaultdict(list)
 	for r, N in zip(graph_params.ratios, Ns):
