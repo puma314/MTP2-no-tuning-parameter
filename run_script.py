@@ -29,7 +29,7 @@ graph_params_dict = {
 
 
 algo_params = AlgoParams(stability_samples=50, M=7./9., pi=0.8)
-run_name = 'testrunsmallp'
+run_name = 'server_run_p_50'
 
 with open("{}_algo_params.pkl".format(run_name), 'wb') as f:
 	pickle.dump(algo_params, f)
