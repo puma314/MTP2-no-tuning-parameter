@@ -10,8 +10,11 @@ def grid_3D_wrapper(graph_params, algo_params, run_name, run_id):
 	p = graph_params.p
 	dim = p**3
 	Ns = [int(r*dim) for r in graph_params.ratios]
-	if max(Ns) < 10:
-		Ns = [x*10 for x in Ns]
+	if min(Ns) < 10:
+		print("Ns for grid_3D are too small")
+		print(dim, graph_params.ratios)
+		print(Ns)
+		assert False
 	for r, N in zip(graph_params.ratios, Ns):
 		omega = grid_3D(p)
 		results = get_results(graph_params, algo_params, omega, N)
@@ -24,8 +27,6 @@ def grid_3D_loader(graph_params, algo_params, run_name, run_ids):
 	p = graph_params.p
 	dim = p**3
 	Ns = [int(r*dim) for r in graph_params.ratios]
-	if max(Ns) < 10:
-		Ns = [x*10 for x in Ns]
 	loaded = defaultdict(list)
 	for r, N in zip(graph_params.ratios, Ns):
 		for run_id in run_ids:
@@ -40,10 +41,13 @@ def grid_wrapper(graph_params, algo_params, run_name, run_id):
 	p = graph_params.p
 	dim = p**2
 	Ns = [int(r*dim) for r in graph_params.ratios]
-	if max(Ns) < 10:
-		Ns = [x*10 for x in Ns]
+	if min(Ns) < 10:
+		print("Ns for grid_3D are too small")
+		print(dim, graph_params.ratios)
+		print(Ns)
+		assert False
 	for r, N in zip(graph_params.ratios, Ns):
-		omega = grid_graphs(p)
+		omega = grid_graph(p)
 		results = get_results(graph_params, algo_params, omega, N)
 		fname = "{}_{}_{}_{}_results.pkl".format(run_name, run_id, 'grid', r)
 		with open(fname, 'wb') as f:
@@ -54,9 +58,6 @@ def grid_loader(graph_params, algo_params, run_name, run_ids):
 	p = graph_params.p
 	dim = p**2
 	Ns = [int(r*dim) for r in graph_params.ratios]
-	if max(Ns) < 10:
-		Ns = [x*10 for x in Ns]
-
 	loaded = defaultdict(list)
 	for r, N in zip(graph_params.ratios, Ns):
 		for run_id in run_ids:
@@ -149,7 +150,7 @@ def star_loader(graph_params, algo_params, run_name, run_ids):
 			if not os.path.isfile(fname):
 				continue
 			with open(fname, 'rb') as f:
-				loaded[N].append(pickle.load(f))
+				loaded[d].append(pickle.load(f))
 	return loaded
 
 WRAPPERS = {
