@@ -15,6 +15,24 @@ def GET_GRAPHS():
 	}
 	return GRAPHS
 
+def omega_modularity(A, sector):
+	p = A.shape[0]
+	for i in range(len(A)):
+		A[i,i] = 0
+	E = np.sum(A) // 2
+	#print('E', E)
+	p = len(A)
+	Q = 0
+	for i in range(p):
+		for j in range(p):
+			if sector[i] == sector[j]:
+				k_i = np.sum(A[i])
+				k_j = np.sum(A[j])
+				# print(i,j)
+				# print(A[i,j])
+				# print(k_i*k_j / (2*E))
+				Q += A[i,j] - k_i*k_j / (2*E)
+	return Q / (2*E) 
 
 def modularity(graph, sector):
 	A = nx.adjacency_matrix(graph).todense()
@@ -175,13 +193,17 @@ def decay(p):
 def random_graph(p, d):
 	np.random.seed(random.SystemRandom().randint(0, 2**32-2))
 	B = np.zeros((p,p))
-	for i in range(p):
-		for j in range(i+1, p):
-			if np.random.rand() <= d:
-				B[i,j] = np.random.rand()
-				B[j, i] = B[i,j]
+
+	while np.sum(B) == 0.:
+		B = np.zeros((p,p))
+		for i in range(p):
+			for j in range(i+1, p):
+				if np.random.rand() <= d:
+					B[i,j] = np.random.rand()
+					B[j, i] = B[i,j]
 	delta = np.real(sorted(np.linalg.eigvals(B))[-1])
-	omega = 1.25 * delta * np.eye(B.shape[0]) - B
+	omega = 1.05 * delta * np.eye(B.shape[0]) - B
+	#print(np.linalg.eigvals(omega))
 	sigma = np.linalg.inv(omega)
 	D = np.diag(np.power(np.diag(sigma), -0.5))
 	D_inv = np.linalg.inv(D)

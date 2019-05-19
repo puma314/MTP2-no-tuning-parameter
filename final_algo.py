@@ -215,6 +215,15 @@ def new_algo(X, m=0.85):
                             stop = True
     return hypothesis_graph
 
+def GET_ALGOS_ROC():
+    return {
+        'glasso': glasso_vanilla,
+        'nbsel': nbsel,
+        'SH': SH_lambda_wrapper,
+        'our': new_algo,
+        'anand': anandkumar_algo_lambda_wrapper
+    }
+
 def glasso_vanilla(data, lamb):
     try:
         with warnings.catch_warnings(record=True) as w:
@@ -322,6 +331,43 @@ def stability_wrapper(algo, NUM_SUBSAMPLES=10):
 #         omega[e[::-1]] = 1
 #     return omega
 
+def anandkumar_algo_lambda_wrapper(X, lambdas):
+    N, p = X.shape
+    sample_cov = np.cov(X.T)
+    assert sample_cov.shape == (p,p)
+
+    partial_covs = {}
+    results = {}
+    for eta, xi in lambdas:
+        hypothesis_graph = np.zeros((p,p))
+        for i in range(p):
+            for j in range(i+1, p):
+                edge_exists = True
+                #testing if edge (i,j) exists
+                vertices = list(range(p))
+                vertices.remove(i)
+                vertices.remove(j)
+                for l in range(1, eta+1):
+                    if not edge_exists:
+                        break
+                    all_subsets = list(itertools.combinations(vertices, l))
+                    for subset in all_subsets:
+                        subset_i_j = sorted(subset + (i,j))
+                        if tuple(subset_i_j) in partial_covs:
+                            pc = partial_covs[tuple(subset_i_j)]
+                        else:
+                            pc = np.abs(partial_cov(sample_cov, subset_i_j, i, j))
+                            partial_covs[tuple(subset_i_j)] = pc
+                        if  pc <= xi:
+                            edge_exists = False
+                            break
+                if edge_exists:
+                    hypothesis_graph[i,j] = 1
+                    hypothesis_graph[j,i] = 1
+        results[(eta,xi)] = hypothesis_graph
+    return results, (sample_cov, partial_covs)
+    
+
 def anandkumar_algo(X, xi, eta=2):
     N, p = X.shape
     sample_cov = np.cov(X.T)
@@ -420,6 +466,16 @@ def get_stability_edges(probs, lambs, pi):
         if max(pis) >= pi:
             true_edges.add(e)
     return true_edges
+
+def SH_lambda_wrapper(data, lambdas):
+    cov = np.cov(data.T)
+    prec = run_single_MTP(cov)
+    results = {}
+
+    for q in lambdas:
+        results[q] = attr_threshold(prec, q)
+
+    return results, prec
 
 def run_single_MTP(sample_cov):
     og_dir = os.getcwd()
