@@ -33,7 +33,7 @@ if __name__ == "__main__":
 	p = 50
 	for N in [25, 35, 50, 100, 200]:
 		for d in [0.01, 0.05]:
-			if d == 0.01 and N in [25, 50, 100]: #already did
+			if d == 0.01 and N in [25, 50]: #already did
 				continue
 			print("Working on N={} d={}".format(N, d))
 			start = time.time()
