@@ -10,7 +10,7 @@ NUM_CORES = 10
 NUM_GRAPHS = 40
 
 algo_lambdas = {
-	'our': np.linspace(0.75, 1., num=20),
+	'our': np.linspace(0.75, 1., num=10),
 	'SH': np.linspace(0.05, 1., num=20),
 	'anand': [(1,x) for x in np.logspace(-4,1.2, num=10)] + [(2,x) for x in np.logspace(-4,1.2, num=10)],
 	# [(1, 0.0001), (1, 0.0005), 
