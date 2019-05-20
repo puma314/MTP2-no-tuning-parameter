@@ -234,7 +234,12 @@ def glasso_vanilla(data, lamb):
                 print("graphical_lasso ConvergenceWarning: {}".format(lamb))
                 return None
             _, omega_hat = glasso
-            return omega_hat
+            non_zero = np.nonzero(omega_hat)
+            N, p = data.shape
+            A = np.zeros((p,p))
+            A[non_zero] = 1
+            return A
+            #return omega_hat
     except FloatingPointError:
         print("graphical_lasso FloatingPointError: {}".format(lamb))
         return None
@@ -266,16 +271,19 @@ def SH_stability_wrapper(NUM_SUBSAMPLES):
     def SH_stability(data, lambdas, pi):
         print("IN SH STABILITY")
         N, p = data.shape
-        NUM_SUBSAMPLES = 10
         MTP2_precs = []
         subN = N//2
         for _ in range(NUM_SUBSAMPLES):
             batch = get_batch(data, subN)
+            import time
+            start = time.time()
             print("running single MTP")
             MTP2res = run_single_MTP(np.cov(batch.T))
-            print('done with single MTP')
+            end = time.time()
+            print('done with single MTP', end-start)
             MTP2_precs.append(MTP2res)
         
+        start = time.time()
         edges = []
         for i in range(p):
             for j in range(i+1, p):
@@ -301,6 +309,7 @@ def SH_stability_wrapper(NUM_SUBSAMPLES):
         for e in stable_edges:
             omega[e] = 1
             omega[e[::-1]] = 1
+        print(time.time() - start, 'HIIIIIIIII')
         return omega, results, probs, MTP2_precs
     return SH_stability
 
@@ -339,6 +348,7 @@ def anandkumar_algo_lambda_wrapper(X, lambdas):
     partial_covs = {}
     results = {}
     for eta, xi in lambdas:
+        print("Working on", eta, xi)
         hypothesis_graph = np.zeros((p,p))
         for i in range(p):
             for j in range(i+1, p):
@@ -369,6 +379,7 @@ def anandkumar_algo_lambda_wrapper(X, lambdas):
     
 
 def anandkumar_algo(X, xi, eta=2):
+    print('Running anand with eta = {}'.format(eta))
     N, p = X.shape
     sample_cov = np.cov(X.T)
     assert sample_cov.shape == (p,p)

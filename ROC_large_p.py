@@ -6,8 +6,8 @@ from paper_sims_util import confusion, random_graph
 from final_algo import GET_ALGOS_ROC
 import random, sys, time
 
-NUM_CORES = 8
-NUM_GRAPHS = 50
+NUM_CORES = 10
+NUM_GRAPHS = 40
 
 algo_lambdas = {
 	'our': np.linspace(0.75, 1., num=20),
@@ -30,9 +30,11 @@ if __name__ == "__main__":
 	# d = float(d)
 	# print(N, p, d)
 
-	p = 10
-	for N in [10, 20, 30, 60]:
+	p = 50
+	for N in [25, 35, 50, 100, 200]:
 		for d in [0.01, 0.05]:
+			if d == 0.01 and N in [25, 50, 100]: #already did
+				continue
 			print("Working on N={} d={}".format(N, d))
 			start = time.time()
 			run_name = 'ROC_N_{}_p_{}_d_{}'.format(N, p,d)

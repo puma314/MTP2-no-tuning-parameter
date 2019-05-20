@@ -20,6 +20,8 @@ def omega_modularity(A, sector):
 	for i in range(len(A)):
 		A[i,i] = 0
 	E = np.sum(A) // 2
+	if E == 0:
+		return 0
 	#print('E', E)
 	p = len(A)
 	Q = 0
@@ -39,6 +41,8 @@ def modularity(graph, sector):
 	for i in range(len(A)):
 		A[i,i] = 0
 	E = np.sum(A) // 2
+	if E == 0:
+		return 0
 	#print('E', E)
 	p = len(A)
 	Q = 0
