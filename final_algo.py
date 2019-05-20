@@ -10,13 +10,22 @@ import scipy
 import warnings
 
 def get_algo_lambdas(M, eta, N, p):
+    # algo_lambdas = {
+    #     'our': M,
+    #     'SH': [0.7, 0.75, 0.8, 0.85, 0.9, 0.95],
+    #     'glasso': [0.1, 0.5, 1.0, 2., 8.],#long_lambdas(N, p),
+    #     'nbsel': [0.1, 0.5, 1.0, 2., 8.],
+    #     'anand': [(l, eta) for l in super_short_lambdas(N, p)]
+    # }
+
     algo_lambdas = {
         'our': M,
-        'SH': get_SH_lambdas(),
-        'glasso': [0.1, 0.5, 1.0, 2., 8.],#long_lambdas(N, p),
-        'nbsel': [0.1, 0.5, 1.0, 2., 8.],
-        'anand': [(l, eta) for l in super_short_lambdas(N, p)]
+        'SH': [0.7, 0.75, 0.8, 0.85, 0.9, 0.95],
+        'anand': [(1,x) for x in np.logspace(-1.25,1., num=6)],
+        'nbsel': np.logspace(-1.25, 1., num=6),
+        'glasso': np.logspace(-1.25, 1., num=6)
     }
+
     return algo_lambdas
 
 def long_lambdas(n,p):
@@ -41,13 +50,13 @@ def super_short_lambdas(n,p):
     return ls
 
 def get_SH_lambdas():
-    return [0.7, 0.8, 0.9, 0.95, 0.99, 1]
+    return [0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
 
 def GET_ALGOS(NUM_SUBSAMPLES):
-    anand_stab = stability_wrapper(anandkumar_algo, NUM_SUBSAMPLES)
+    anand_stab = anand_stability_wrapper(NUM_SUBSAMPLES//5)#stability_wrapper(anandkumar_algo, NUM_SUBSAMPLES)
     nbsel_stab = stability_wrapper(nbsel, NUM_SUBSAMPLES)
     glasso_stab = stability_wrapper(glasso_vanilla, NUM_SUBSAMPLES)
-    SH_stab = SH_stability_wrapper(NUM_SUBSAMPLES)
+    SH_stab = SH_stability_wrapper(NUM_SUBSAMPLES//5)
     algos = {
         'our': new_algo,
         'SH': SH_stab,
@@ -271,6 +280,48 @@ def graphical_lasso_CV(data, lambdas):
 
     return ests[best_lamb]
 
+def anand_stability_wrapper(NUM_SUBSAMPLES):
+    def anand_stability(data, lambdas, pi):
+        assert type(lambdas[0][0]) == int
+        N, p = data.shape
+        subN = N//2
+
+        edges = []
+        for i in range(p):
+            for j in range(i+1, p):
+                edges.append((i,j))
+
+        trials = []
+        for _ in range(NUM_SUBSAMPLES):
+            print('hi')
+            print(_)
+            batch = get_batch(data, subN)
+            lambda_to_res, _ = anandkumar_algo_lambda_wrapper(batch, lambdas)
+            trials.append(lambda_to_res)
+
+        results = defaultdict(list)
+        probs = {}
+        for lamb in lambdas:
+            for t in trials:
+                results[lamb].append(t[lamb])
+
+            probs[lamb] = defaultdict(int)
+            for res in results[lamb]:
+                for e in edges:
+                    e_val = res[e]
+                    if e_val != 0:
+                        probs[lamb][e] += 1
+            for e in edges:
+                probs[lamb][e] /= len(results[lamb])
+
+        stable_edges = get_stability_edges(probs, lambdas, pi)
+        omega = np.zeros((p,p))
+        for e in stable_edges:
+            omega[e] = 1
+            omega[e[::-1]] = 1
+        return omega, results, probs
+    return anand_stability
+
 def SH_stability_wrapper(NUM_SUBSAMPLES):
     def SH_stability(data, lambdas, pi):
         print("IN SH STABILITY")
@@ -303,7 +354,7 @@ def SH_stability_wrapper(NUM_SUBSAMPLES):
             for res in results[thres]:
                 for e in edges:
                     e_val = res[e]
-                    if e_val < 0:
+                    if e_val != 0:
                         probs[thres][e] += 1
             for e in edges:
                 probs[thres][e] /= len(results[thres])
@@ -313,7 +364,6 @@ def SH_stability_wrapper(NUM_SUBSAMPLES):
         for e in stable_edges:
             omega[e] = 1
             omega[e[::-1]] = 1
-        print(time.time() - start, 'HIIIIIIIII')
         return omega, results, probs, MTP2_precs
     return SH_stability
 
@@ -352,6 +402,7 @@ def anandkumar_algo_lambda_wrapper(X, lambdas):
     partial_covs = {}
     results = {}
     for eta, xi in lambdas:
+        assert type(eta) == int
         print("Working on", eta, xi)
         hypothesis_graph = np.zeros((p,p))
         for i in range(p):
@@ -367,18 +418,20 @@ def anandkumar_algo_lambda_wrapper(X, lambdas):
                     all_subsets = list(itertools.combinations(vertices, l))
                     for subset in all_subsets:
                         subset_i_j = sorted(subset + (i,j))
-                        if tuple(subset_i_j) in partial_covs:
-                            pc = partial_covs[tuple(subset_i_j)]
+                        key = tuple((tuple(subset_i_j), i, j))
+                        if key in partial_covs:
+                            pc = partial_covs[key]
                         else:
                             pc = np.abs(partial_cov(sample_cov, subset_i_j, i, j))
-                            partial_covs[tuple(subset_i_j)] = pc
+                            partial_covs[key] = pc
                         if  pc <= xi:
                             edge_exists = False
                             break
+
                 if edge_exists:
                     hypothesis_graph[i,j] = 1
                     hypothesis_graph[j,i] = 1
-        results[(eta,xi)] = hypothesis_graph
+        results[(eta,xi)] = hypothesis_graph.copy()
     return results, (sample_cov, partial_covs)
     
 
@@ -402,7 +455,8 @@ def anandkumar_algo(X, xi, eta=2):
                 all_subsets = list(itertools.combinations(vertices, l))
                 for subset in all_subsets:
                     subset_i_j = sorted(subset + (i,j))
-                    if np.abs(partial_cov(sample_cov, subset_i_j, i, j)) <= xi:
+                    pc = np.abs(partial_cov(sample_cov, subset_i_j, i, j))
+                    if pc <= xi:
                         edge_exists = False
                         break
             if edge_exists:

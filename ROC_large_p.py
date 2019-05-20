@@ -12,7 +12,7 @@ NUM_GRAPHS = 30
 algo_lambdas = {
 	'our': np.linspace(0.75, 0.95, num=10),
 	'SH': np.linspace(0.05, 1., num=20),
-	'anand': [(1,x) for x in np.logspace(-4,1.2, num=20)] #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
+	'anand': [(1,x) for x in np.logspace(-4,1.2, num=20)], #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
 	# [(1, 0.0001), (1, 0.0005), 
 	# 			(1,0.001), (1,0.01), 
 	# 			(1,0.1), (1,0.5), 
