@@ -224,11 +224,15 @@ def GET_ALGOS_ROC():
         'anand': anandkumar_algo_lambda_wrapper
     }
 
-def glasso_vanilla(data, lamb):
+def glasso_vanilla(data, lamb, KT=False):
     try:
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            glasso = sklearn.covariance.graphical_lasso(np.cov(data.T), alpha=lamb, mode='lars')
+            if KT:
+                cov = kendall_cov(data)
+            else:
+                cov = np.cov(data.T)
+            glasso = sklearn.covariance.graphical_lasso(cov, alpha=lamb, mode='lars')
             if len(w) > 0 and issubclass(w[-1].category, sklearn.exceptions.ConvergenceWarning):
                 #print(str(w[-1].message))
                 print("graphical_lasso ConvergenceWarning: {}".format(lamb))

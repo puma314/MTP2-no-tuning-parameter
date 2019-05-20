@@ -7,12 +7,12 @@ from final_algo import GET_ALGOS_ROC
 import random, sys, time
 
 NUM_CORES = 10
-NUM_GRAPHS = 40
+NUM_GRAPHS = 30
 
 algo_lambdas = {
-	'our': np.linspace(0.75, 1., num=10),
+	'our': np.linspace(0.75, 0.95, num=10),
 	'SH': np.linspace(0.05, 1., num=20),
-	'anand': [(1,x) for x in np.logspace(-4,1.2, num=10)] + [(2,x) for x in np.logspace(-4,1.2, num=10)],
+	'anand': [(1,x) for x in np.logspace(-4,1.2, num=20)] #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
 	# [(1, 0.0001), (1, 0.0005), 
 	# 			(1,0.001), (1,0.01), 
 	# 			(1,0.1), (1,0.5), 
@@ -30,11 +30,9 @@ if __name__ == "__main__":
 	# d = float(d)
 	# print(N, p, d)
 
-	p = 50
-	for N in [25, 35, 50, 100, 200]:
-		for d in [0.01, 0.05]:
-			if d == 0.01 and N in [25, 50]: #already did
-				continue
+	p = 100
+	for N in [25, 50, 100]:
+		for d in [0.01]:
 			print("Working on N={} d={}".format(N, d))
 			start = time.time()
 			run_name = 'ROC_N_{}_p_{}_d_{}'.format(N, p,d)
