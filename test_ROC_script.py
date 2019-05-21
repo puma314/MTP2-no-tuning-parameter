@@ -6,19 +6,19 @@ from paper_sims_util import confusion, random_graph
 from final_algo import GET_ALGOS_ROC
 import random, sys, time
 
-NUM_CORES = 2
-NUM_GRAPHS = 30
+NUM_CORES = 6
+NUM_GRAPHS = 2
 
 algo_lambdas = {
-	'our': np.linspace(0.75, 0.95, num=10),
-	'SH': np.linspace(0.05, 1., num=20),
-	'anand': [(1,x) for x in np.logspace(-4,1.2, num=20)], #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
+	'our': np.linspace(0.75, 0.95, num=2),
+	'SH': np.linspace(0.05, 1., num=2),
+	'anand': [(1,x) for x in np.logspace(-4,1.2, num=2)], #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
 	# [(1, 0.0001), (1, 0.0005), 
 	# 			(1,0.001), (1,0.01), 
 	# 			(1,0.1), (1,0.5), 
 	# 			(1,1.0), (1,2.0)],
-	'nbsel': np.logspace(-6, 1.2, num=20),#[0.000001, 0.0001, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0],
-	'glasso': np.logspace(-6, 1.2, num=20)#[0.0001, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0]
+	'nbsel': np.logspace(-6, 1.2, num=2),#[0.000001, 0.0001, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0],
+	'glasso': np.logspace(-6, 1.2, num=2)#[0.0001, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0]
 }
 
 ALL_ALGOS = GET_ALGOS_ROC()
@@ -31,12 +31,12 @@ if __name__ == "__main__":
 	# print(N, p, d)
 
 	N = int(sys.argv[1])
-	p = 100
+	p = 10
 	d = 0.01
 
 	print("Working on N={} d={}".format(N, d))
 	start = time.time()
-	run_name = 'ROC_N_{}_p_{}_d_{}'.format(N, p,d)
+	run_name = 'TEST_ROC'.format(N, p,d)
 	RandomGraphParams = namedtuple('RandomGraphParams', 'N p d')
 	random_graph_params = RandomGraphParams(N=N, p=p, d=d)
 

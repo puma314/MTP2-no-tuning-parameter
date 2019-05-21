@@ -88,6 +88,7 @@ def chain_loader(graph_params, algo_params, run_name, run_ids):
 			if not os.path.isfile(fname):
 				continue
 			with open(fname, 'rb') as f:
+				print(fname)
 				loaded[N].append(pickle.load(f))
 	return loaded
 
