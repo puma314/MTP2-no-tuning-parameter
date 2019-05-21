@@ -5,7 +5,6 @@ from collections import defaultdict
 import sklearn.linear_model
 import sklearn.covariance
 import os
-import time
 import scipy
 import warnings
 
@@ -330,15 +329,11 @@ def SH_stability_wrapper(NUM_SUBSAMPLES):
         subN = N//2
         for _ in range(NUM_SUBSAMPLES):
             batch = get_batch(data, subN)
-            import time
-            start = time.time()
             print("running single MTP")
             MTP2res = run_single_MTP(np.cov(batch.T))
-            end = time.time()
             print('done with single MTP', end-start)
             MTP2_precs.append(MTP2res)
         
-        start = time.time()
         edges = []
         for i in range(p):
             for j in range(i+1, p):
