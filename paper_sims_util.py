@@ -109,7 +109,7 @@ def is_MTP2(omega):
 					assert omega[i,j] <= 0, omega
 	return True
 
-def grid_graph(p):
+def grid_graph(p, mult = 1.05):
 	def grid_adj(p):
 		n = p * p
 		M = np.zeros((n,n))
@@ -123,7 +123,7 @@ def grid_graph(p):
 		return M
 	B = grid_adj(p)
 	delta = np.real(sorted(np.linalg.eigvals(B))[-1])
-	omega = 1.05 * delta * np.eye(B.shape[0]) - B
+	omega = mult * delta * np.eye(B.shape[0]) - B
 	sigma = np.linalg.inv(omega)
 	D = np.diag(np.power(np.diag(sigma), -0.5))
 	D_inv = np.linalg.inv(D)

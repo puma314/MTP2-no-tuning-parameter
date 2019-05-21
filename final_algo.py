@@ -7,6 +7,7 @@ import sklearn.covariance
 import os
 import scipy
 import warnings
+import pandas as pd
 
 def get_algo_lambdas(M, eta, N, p):
     # algo_lambdas = {
@@ -179,6 +180,50 @@ def remove_adj_i(p, adj_i, i, j):
 #                 #print(rhos)
 #     return hypothesis_graph
 
+def new_algo_KT(X, m = 0.85):
+    N, p = X.shape
+    M = int(np.power(N, m))
+    print("Running KT VERSION new algorithm")
+    print("N={}, M={}".format(N, M))
+    l = -1
+    hypothesis_graph = np.ones((p,p))
+
+    valid_edge_exists = True
+
+    while valid_edge_exists:
+        valid_edge_exists = False
+        l = l+1
+        print("Working on l = {}".format(l))
+        for edge in get_edges(hypothesis_graph):
+            i, j = edge
+            adj_i = adj(hypothesis_graph, i)
+            if len(adj_i) >= l+1:
+                adj_i.remove(j)
+                valid_edge_exists = True
+            else:
+                continue #to next iteration
+
+            stop = False
+            combos = list(itertools.combinations(adj_i, l))
+            rhos = []
+            for S in combos:
+                S = list(S)
+                all_K = remove_adj_i(p, S, i, j)
+                for k in all_K:
+                    if not stop:
+                        subset = sorted(S + [k] + [i] + [j])
+                        data = get_batch(X, M)
+                        #d = np.random.randint(K)
+                        #data = batches[d]
+                        sample_cov = kendall_cov(data)
+                        rho = partial_cov(sample_cov, subset, i, j)
+                        rhos.append(rho)
+                        if rho < 0:
+                            hypothesis_graph[i,j] = 0
+                            hypothesis_graph[j, i] = 0
+                            stop = True
+    return hypothesis_graph
+
 def new_algo(X, m=0.85):
     N, p = X.shape
     M = int(np.power(N, m))
@@ -232,14 +277,35 @@ def GET_ALGOS_ROC():
         'anand': anandkumar_algo_lambda_wrapper
     }
 
-def glasso_vanilla(data, lamb, KT=False):
+def glasso_vanilla_KT(data, lamb):
     try:
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            if KT:
-                cov = kendall_cov(data)
-            else:
-                cov = np.cov(data.T)
+            cov = kendall_cov(data)
+            glasso = sklearn.covariance.graphical_lasso(cov, alpha=lamb, mode='lars')
+            if len(w) > 0 and issubclass(w[-1].category, sklearn.exceptions.ConvergenceWarning):
+                #print(str(w[-1].message))
+                print("graphical_lasso ConvergenceWarning: {}".format(lamb))
+                return None
+            _, omega_hat = glasso
+            non_zero = np.nonzero(omega_hat)
+            N, p = data.shape
+            A = np.zeros((p,p))
+            A[non_zero] = 1
+            return A
+            #return omega_hat
+    except FloatingPointError:
+        print("graphical_lasso FloatingPointError: {}".format(lamb))
+        return None
+    except OverflowError:
+        print("graphical_lasso OverflowError: {}".format(lamb))
+        return None
+
+def glasso_vanilla(data, lamb):
+    try:
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            cov = np.cov(data.T)
             glasso = sklearn.covariance.graphical_lasso(cov, alpha=lamb, mode='lars')
             if len(w) > 0 and issubclass(w[-1].category, sklearn.exceptions.ConvergenceWarning):
                 #print(str(w[-1].message))
@@ -321,6 +387,46 @@ def anand_stability_wrapper(NUM_SUBSAMPLES):
         return omega, results, probs
     return anand_stability
 
+def SH_stability_wrapper_KT(NUM_SUBSAMPLES):
+    def SH_stability_KT(data, lambdas, pi):
+        print("IN SH STABILITY KT VERSION")
+        N, p = data.shape
+        MTP2_precs = []
+        subN = N//2
+        for _ in range(NUM_SUBSAMPLES):
+            batch = get_batch(data, subN)
+            print('Running single MTP2')
+            MTP2res = run_single_MTP(kendall_cov(batch))
+            MTP2_precs.append(MTP2res)
+        
+        edges = []
+        for i in range(p):
+            for j in range(i+1, p):
+                edges.append((i,j))
+        
+        results = defaultdict(list)
+        probs = {}
+        for thres in lambdas:
+            for prec in MTP2_precs:
+                results[thres].append(attr_threshold(prec, thres))
+
+            probs[thres] = defaultdict(int)
+            for res in results[thres]:
+                for e in edges:
+                    e_val = res[e]
+                    if e_val != 0:
+                        probs[thres][e] += 1
+            for e in edges:
+                probs[thres][e] /= len(results[thres])
+
+        stable_edges = get_stability_edges(probs, lambdas, pi)
+        omega = np.zeros((p,p))
+        for e in stable_edges:
+            omega[e] = 1
+            omega[e[::-1]] = 1
+        return omega, results, probs, MTP2_precs
+    return SH_stability
+
 def SH_stability_wrapper(NUM_SUBSAMPLES):
     def SH_stability(data, lambdas, pi):
         print("IN SH STABILITY")
@@ -388,6 +494,46 @@ def stability_wrapper(algo, NUM_SUBSAMPLES=10):
 #         omega[e[::-1]] = 1
 #     return omega
 
+def anandkumar_algo_lambda_wrapper_KT(X, lambdas):
+    N, p = X.shape
+    sample_cov = kendall_cov(X)
+    assert sample_cov.shape == (p,p)
+
+    partial_covs = {}
+    results = {}
+    for eta, xi in lambdas:
+        assert type(eta) == int
+        print("Working on", eta, xi)
+        hypothesis_graph = np.zeros((p,p))
+        for i in range(p):
+            for j in range(i+1, p):
+                edge_exists = True
+                #testing if edge (i,j) exists
+                vertices = list(range(p))
+                vertices.remove(i)
+                vertices.remove(j)
+                for l in range(1, eta+1):
+                    if not edge_exists:
+                        break
+                    all_subsets = list(itertools.combinations(vertices, l))
+                    for subset in all_subsets:
+                        subset_i_j = sorted(subset + (i,j))
+                        key = tuple((tuple(subset_i_j), i, j))
+                        if key in partial_covs:
+                            pc = partial_covs[key]
+                        else:
+                            pc = np.abs(partial_cov(sample_cov, subset_i_j, i, j))
+                            partial_covs[key] = pc
+                        if  pc <= xi:
+                            edge_exists = False
+                            break
+
+                if edge_exists:
+                    hypothesis_graph[i,j] = 1
+                    hypothesis_graph[j,i] = 1
+        results[(eta,xi)] = hypothesis_graph.copy()
+    return results, (sample_cov, partial_covs)
+
 def anandkumar_algo_lambda_wrapper(X, lambdas):
     N, p = X.shape
     sample_cov = np.cov(X.T)
@@ -427,7 +573,13 @@ def anandkumar_algo_lambda_wrapper(X, lambdas):
                     hypothesis_graph[j,i] = 1
         results[(eta,xi)] = hypothesis_graph.copy()
     return results, (sample_cov, partial_covs)
-    
+
+def kendall_cov(data):
+    df = pd.DataFrame(data)
+    kendall_corr_mat = df.corr(method='kendall').values
+    corr_mat = np.sin(0.5 * np.pi * kendall_corr_mat)
+    stdmat = np.diag(np.sqrt(np.diag(np.cov(data.T))))
+    return stdmat.dot(corr_mat).dot(stdmat) 
 
 def anandkumar_algo(X, xi, eta=2):
     print('Running anand with eta = {}'.format(eta))

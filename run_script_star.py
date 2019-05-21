@@ -11,26 +11,28 @@ GraphParams = namedtuple('GraphParams', 'N eta p d ratios')
 AlgoParams = namedtuple('AlgoParams', 'stability_samples M pi')
 
 graph_params_dict = {
-    'star_N_25': GraphParams(p=100, d=[2, 3, 4, 5], N=25, eta=1, ratios=None), #p, d, N, eta
-    'star_N_100':GraphParams(p=100, d=[2, 3, 4, 5], N=100, eta=1, ratios=None), #p, d, N, eta
-    'star_N_200': GraphParams(p=100, d=[2, 3, 4, 5], N=200, eta=1, ratios=None), #p, d, N, eta
+	'star_N_25': GraphParams(p=100, d=[2, 3, 4, 5], N=25, eta=1, ratios=None), #p, d, N, eta
+	'star_N_100':GraphParams(p=100, d=[2, 3, 4, 5], N=100, eta=1, ratios=None), #p, d, N, eta
+	'star_N_200': GraphParams(p=100, d=[2, 3, 4, 5], N=200, eta=1, ratios=None), #p, d, N, eta
 }
 
 algo_params = AlgoParams(stability_samples=50, M=7./9., pi=0.8)
 
-with open("{}_algo_params.pkl".format(run_name), 'wb') as f:
-	pickle.dump(algo_params, f)
 
-with open("{}_graph_params_dict.pkl".format(run_name), 'wb') as f:
-	pickle.dump(graph_params_dict, f)
 
 
 if __name__ == "__main__":
 	star_N = sys.argv[1]
-        star_N = int(star_N)
-        assert star_N in [25, 100, 200]
-        run_name = 'DO_p_100_smallstar_{}'.format(star_N)
+	star_N = int(star_N)
+	assert star_N in [25, 100, 200]
+	run_name = 'DO_p_100_smallstar_{}'.format(star_N)
 
+	with open("{}_algo_params.pkl".format(run_name), 'wb') as f:
+		pickle.dump(algo_params, f)
+
+	with open("{}_graph_params_dict.pkl".format(run_name), 'wb') as f:
+		pickle.dump(graph_params_dict, f)
+		
 	params = []
 	for run_num in range(NUM_ITERS):
 		params.append(('star', run_num))
@@ -49,7 +51,6 @@ if __name__ == "__main__":
 	print(params)
 	with Pool(NUM_CORES) as p:
 		p.map(run_num_param_wrapper, params)
-
 
 
 
