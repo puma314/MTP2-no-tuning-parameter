@@ -6,7 +6,7 @@ from paper_sims_util import confusion, random_graph
 from final_algo import GET_ALGOS_ROC
 import random, sys, time
 
-NUM_CORES = 6
+NUM_CORES = 2
 NUM_GRAPHS = 2
 
 algo_lambdas = {

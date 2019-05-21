@@ -329,9 +329,8 @@ def SH_stability_wrapper(NUM_SUBSAMPLES):
         subN = N//2
         for _ in range(NUM_SUBSAMPLES):
             batch = get_batch(data, subN)
-            print("running single MTP")
+            print('Running single MTP2')
             MTP2res = run_single_MTP(np.cov(batch.T))
-            print('done with single MTP', end-start)
             MTP2_precs.append(MTP2res)
         
         edges = []
@@ -542,6 +541,7 @@ def SH_lambda_wrapper(data, lambdas):
     return results, prec
 
 def run_single_MTP(sample_cov):
+    #mkdir MTP2-finance/matlab/data
     og_dir = os.getcwd()
     try:
         os.chdir("../MTP2-finance/matlab")

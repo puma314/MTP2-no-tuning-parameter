@@ -5,7 +5,7 @@ import running_wrappers
 import pickle
 
 NUM_CORES = 6
-NUM_ITERS = 1
+NUM_ITERS = 2
 
 GraphParams = namedtuple('GraphParams', 'N eta p d ratios')
 AlgoParams = namedtuple('AlgoParams', 'stability_samples M pi')
@@ -13,12 +13,12 @@ AlgoParams = namedtuple('AlgoParams', 'stability_samples M pi')
 graph_params_dict = {
     'chain': GraphParams(p=10, N=[25, 50], eta=1, ratios=None, d=None), #p, N, eta
     'star': GraphParams(p=10, d=[10, 20], N=50, eta=1, ratios=None), #p, d, N, eta
-    'random': GraphParams(p=10, d=0.01, ratios=[r/100. for r in [25, 50]], eta=1, N=None), #p, d, ratio over 500, eta
+    'random': GraphParams(p=10, d=0.01, ratios=[r/10. for r in [25, 50]], eta=1, N=None), #p, d, ratio over 500, eta
     #'grid_3D': GraphParams(p=4, ratios=new_grid_ratios, eta=2, N=None, d=None), #p, ratio over 524, eta
-    'grid': GraphParams(p=10, ratios=[r/100. for r in [25,50]], eta=1, N=None, d=None) #p, ratio over 529, eta
+    'grid': GraphParams(p=10, ratios=[r/10. for r in [25,50]], eta=1, N=None, d=None) #p, ratio over 529, eta
 }
 
-algo_params = AlgoParams(stability_samples=2, M=7./9., pi=0.8)
+algo_params = AlgoParams(stability_samples=5, M=7./9., pi=0.8)
 run_name = 'TEST_RUN'
 
 with open("{}_algo_params.pkl".format(run_name), 'wb') as f:
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 			wrapper(graph_params, algo_params, run_name, run_num)
 		except:
 			print(sys.exc_info())
-			print("ERROR on {}".format(run_num))
+			print("ERROR on {}".format(graph_type, run_num))
 
 	print(params)
 	with Pool(NUM_CORES) as p:

@@ -54,8 +54,8 @@ if __name__ == "__main__":
 		try:
 			wrapper(graph_params, algo_params, run_name, run_num)
 		except:
-			print(sys.exc_info()[0])
-			print("ERROR on {}".format(run_num))
+			print(sys.exc_info())
+			print("ERROR on {}".format(run_num, graph_type))
 
 	print(params)
 	with Pool(NUM_CORES) as p:
