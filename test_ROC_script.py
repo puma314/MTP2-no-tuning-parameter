@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	# d = float(d)
 	# print(N, p, d)
 
-	N = int(sys.argv[1])
+	N = 100
 	p = 10
 	d = 0.01
 
