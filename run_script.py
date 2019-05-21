@@ -14,8 +14,6 @@ graph_params_dict = {
     'chain': GraphParams(p=100, N=[25, 50, 100, 200], eta=1, ratios=None, d=None), #p, N, eta
     'star': GraphParams(p=100, d=[10, 20, 30, 50], N=50, eta=1, ratios=None), #p, d, N, eta
     'random': GraphParams(p=100, d=0.01, ratios=[r/100. for r in [25, 50, 100, 200]], eta=1, N=None), #p, d, ratio over 500, eta
-    'random_more_dense': GraphParams(p=100, d=0.05, ratios=[r/100. for r in [25, 50, 100, 200]], eta=1, N=None),
-
     #'grid_3D': GraphParams(p=4, ratios=new_grid_ratios, eta=2, N=None, d=None), #p, ratio over 524, eta
     'grid': GraphParams(p=10, ratios=[r/100. for r in [25,50,100,200]], eta=1, N=None, d=None) #p, ratio over 529, eta
 }
@@ -32,7 +30,7 @@ with open("{}_graph_params_dict.pkl".format(run_name), 'wb') as f:
 
 if __name__ == "__main__":
 	graph_type = sys.argv[1]
-	assert graph_type in ['chain', 'star', 'random', 'random_more_dense', 'grid']
+	assert graph_type in ['chain', 'star', 'random', 'grid']
 	# wrapper = running_wrappers.WRAPPERS[graph_type]
 	# graph_params = graph_params_dict[graph_type]
 	# def run_num_wrapper(run_num):
