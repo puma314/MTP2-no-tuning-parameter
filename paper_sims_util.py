@@ -77,13 +77,22 @@ def confusion(hypothesis_graph, omega):
 			elif o_is_0 and h_is_0:
 				TN += 1
 			elif not o_is_0 and h_is_0:
-				FN += 1
-			elif o_is_0 and not h_is_0:
+				#we guess positive but it is negative
 				FP += 1
+			elif o_is_0 and not h_is_0:
+				#we guess negative but it is positive
+				FN += 1
 			else:
 				print(hypothesis_graph, omega)
 				assert False, "case bad"
 	return TP, TN, FP, FN
+
+def MCC_from_4(TP, TN, FP, FN):
+	num = TP * TN - FP * FN
+	denom = (TP + FP) * (TP + FN) * (TN + FP) * (TN + FN)
+	if denom == 0:
+		return 0
+	return num / np.sqrt(denom)
 
 def MCC(hypothesis_graph, omega):
 	if hypothesis_graph is None:
