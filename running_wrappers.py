@@ -1,4 +1,4 @@
-from final_algo import GET_ALGOS, get_algo_lambdas
+from final_algo import GET_ALGOS, get_algo_lambdas, GET_ALGOS_REBUTTAL
 import pickle
 import numpy as np
 from paper_sims_util import MCC, grid_graph, grid_3D, chain, star, random_graph, is_MTP2
@@ -174,7 +174,8 @@ def get_loaders():
 	return LOADERS
 
 def get_results(graph_params, algo_params, omega, N):
-	algos = GET_ALGOS(algo_params.stability_samples)
+	print("Warning using rebuttal ALGOS")
+	algos = GET_ALGOS_REBUTTAL(algo_params.stability_samples)
 	is_MTP2(omega)
 	algo_lambdas = get_algo_lambdas(algo_params.M, graph_params.eta, N, graph_params.p)
 	sigma = np.linalg.inv(omega)
@@ -190,6 +191,9 @@ def get_results(graph_params, algo_params, omega, N):
 		if algo_name == 'our':
 			our_algo_res = algo(X, algo_params.M)
 			results = (our_algo_res, None, None)
+		elif algo_name == 'tiger' or algo_name == 'clime':
+			tiger_res = algo(X)
+			results = (tiger_res, None, None)
 		else:
 			results = algo(X, lambdas, algo_params.pi)
 		ALL_RESULTS[algo_name] = results

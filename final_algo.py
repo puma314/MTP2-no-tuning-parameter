@@ -8,6 +8,11 @@ import os
 import scipy
 import warnings
 import pandas as pd
+from subprocess import Popen, PIPE
+import uuid
+
+def get_uuid():
+    return uuid.UUID(bytes=os.urandom(16), version=4)
 
 def get_algo_lambdas(M, eta, N, p):
     # algo_lambdas = {
@@ -23,7 +28,9 @@ def get_algo_lambdas(M, eta, N, p):
         'SH': [0.7, 0.75, 0.8, 0.85, 0.9, 0.95],
         'anand': [(1,x) for x in np.logspace(-1.25,1., num=6)],
         'nbsel': np.logspace(-1.25, 1., num=6),
-        'glasso': np.logspace(-1.25, 1., num=6)
+        'glasso': np.logspace(-1.25, 1., num=6),
+        'tiger': [],
+        'clime': []
     }
 
     return algo_lambdas
@@ -51,6 +58,13 @@ def super_short_lambdas(n,p):
 
 def get_SH_lambdas():
     return [0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
+
+def GET_ALGOS_REBUTTAL(NUM_SUBSAMPLES):
+    return {
+        'our': new_algo,
+        'tiger': tiger_algo,
+        'clime': clime_algo
+    }
 
 def GET_ALGOS(NUM_SUBSAMPLES):
     anand_stab = anand_stability_wrapper(NUM_SUBSAMPLES//5)#stability_wrapper(anandkumar_algo, NUM_SUBSAMPLES)
@@ -179,6 +193,43 @@ def remove_adj_i(p, adj_i, i, j):
 #                 #print(trues)
 #                 #print(rhos)
 #     return hypothesis_graph
+def clime_algo(X):
+    uid = get_uuid()
+    X = X - np.mean(X, axis = 0)
+    _, p = X.shape
+    np.save("/Users/umaroy/Documents/meng/MTP2-algorithm/clime_in_{}.npy".format(uid), X)
+    args = ['rscript', 'clime_script.R', str(uid)]
+    proc = Popen(args, stdout=PIPE)
+    while proc.poll() is None:
+        print(proc.stdout.readline())
+    omega = np.load("/Users/umaroy/Documents/meng/MTP2-algorithm/clime_out_{}.npy".format(uid))
+    os.remove("/Users/umaroy/Documents/meng/MTP2-algorithm/clime_in_{}.npy".format(uid))
+    os.remove("/Users/umaroy/Documents/meng/MTP2-algorithm/clime_out_{}.npy".format(uid))
+    hypothesis_graph = np.ones((p,p))
+    for i in range(p):
+        for j in range(p):
+            if np.isclose(omega[i,j], 0, atol=1e-8):
+                hypothesis_graph[i,j] = 0
+    return hypothesis_graph
+
+def tiger_algo(X):
+    uid = get_uuid()
+    X = X - np.mean(X, axis = 0)
+    _, p = X.shape
+    np.save("/Users/umaroy/Documents/meng/MTP2-algorithm/tiger_in_{}.npy".format(uid), X)
+    args = ['rscript', 'tiger.R', str(uid)]
+    proc = Popen(args, stdout=PIPE)
+    while proc.poll() is None:
+        print(proc.stdout.readline())
+    omega = np.load("/Users/umaroy/Documents/meng/MTP2-algorithm/tiger_out_{}.npy".format(uid))
+    os.remove("/Users/umaroy/Documents/meng/MTP2-algorithm/tiger_in_{}.npy".format(uid))
+    os.remove("/Users/umaroy/Documents/meng/MTP2-algorithm/tiger_out_{}.npy".format(uid))
+    hypothesis_graph = np.ones((p,p))
+    for i in range(p):
+        for j in range(p):
+            if np.isclose(omega[i,j], 0, atol=1e-8):
+                hypothesis_graph[i,j] = 0
+    return hypothesis_graph
 
 def new_algo_KT(X, m = 0.85):
     N, p = X.shape
@@ -688,7 +739,7 @@ def SH_lambda_wrapper(data, lambdas):
     results = {}
 
     for q in lambdas:
-        results[q] = attr_threshold(prec, q)
+        results[q] = attr_threshold_new(prec, q)
 
     return results, prec
 
@@ -709,7 +760,28 @@ def run_single_MTP(sample_cov):
         os.chdir(og_dir)
     return ans
 
+def attr_threshold_new(prec, q):
+    new_prec = prec.copy()
+    p, _ = prec.shape
+    off_diags = []
+    for i in range(p):
+        for j in range(i+1, p):
+            if prec[i, j] != 0:
+                off_diags.append(prec[i,j])
+    thres = np.quantile(off_diags, q, interpolation='nearest')
+    for i in range(p):
+        for j in range(i+1, p):
+            ele = prec[i, j]
+            if -ele > abs(thres):
+                pass
+            else:
+                #print(i,j)
+                new_prec[i, j] = 0
+                new_prec[j, i] = 0
+    return new_prec
+
 def attr_threshold(prec, q):
+    #q means you keep q% of it
     new_prec = prec.copy()
     p, _ = prec.shape
     off_diags = []
@@ -720,6 +792,9 @@ def attr_threshold(prec, q):
     idx = int((1-q) * len(off_diags))
     sort = sorted(np.abs(off_diags))
     thres = sort[idx]
+
+    # print(thres)
+    # print(sort)
     #print(sort)
     #print(idx)
     #print(thres)
@@ -727,6 +802,7 @@ def attr_threshold(prec, q):
         for j in range(i+1, p):
             ele = prec[i, j]
             if ele >= -thres:
+                #print(i,j)
                 new_prec[i, j] = 0
                 new_prec[j, i] = 0
     return new_prec

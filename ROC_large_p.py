@@ -6,13 +6,25 @@ from paper_sims_util import confusion, random_graph
 from final_algo import GET_ALGOS_ROC
 import random, sys, time
 
-NUM_CORES = 2
-NUM_GRAPHS = 30
+NUM_CORES = 6
+NUM_GRAPHS = 10
+
+# algo_lambdas = {
+# 	#'our': np.linspace(0.75, 0.95, num=10),
+# 	'SH': np.linspace(0.00, 1., num=10),
+# 	'anand': [(1,x) for x in np.logspace(-4,1.2, num=20)], #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
+# 	# [(1, 0.0001), (1, 0.0005), 
+# 	# 			(1,0.001), (1,0.01), 
+# 	# 			(1,0.1), (1,0.5), 
+# 	# 			(1,1.0), (1,2.0)],
+# 	'nbsel': np.logspace(-6, 1.2, num=20),#[0.000001, 0.0001, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0],
+# 	'glasso': np.logspace(-6, 1.2, num=20)#[0.0001, 0.001, 0.01, 0.1, 0.5, 1.0, 2.0]
+# }
 
 algo_lambdas = {
-	'our': np.linspace(0.75, 0.95, num=10),
-	'SH': np.linspace(0.05, 1., num=20),
-	'anand': [(1,x) for x in np.logspace(-4,1.2, num=20)], #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
+	#'our': np.linspace(0.75, 0.95, num=10),
+	'SH': np.linspace(0.00, 1., num=10),
+	'anand': [(1,x) for x in np.logspace(0.1/5,0.5, num=10)], #+ [(2,x) for x in np.logspace(-4,1.2, num=10)],
 	# [(1, 0.0001), (1, 0.0005), 
 	# 			(1,0.001), (1,0.01), 
 	# 			(1,0.1), (1,0.5), 
@@ -30,7 +42,7 @@ if __name__ == "__main__":
 	# d = float(d)
 	# print(N, p, d)
 
-	N = int(sys.argv[1])
+	N = 500
 	p = 100
 	d = 0.01
 

@@ -1,8 +1,6 @@
 import pickle
 import numpy as np
 from collections import namedtuple, defaultdict
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 from final_algo import attr_threshold
 from paper_sims_util import confusion

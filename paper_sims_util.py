@@ -72,16 +72,19 @@ def confusion(hypothesis_graph, omega):
 			h = hypothesis_graph[i, j]
 			h_is_0 = np.isclose(h, 0, atol = 1e-6)
 			o_is_0 = np.isclose(o, 0, atol = 1e-6)
+
 			if not o_is_0 and not h_is_0:
+				#it is present and hypothesis is present
 				TP += 1
 			elif o_is_0 and h_is_0:
+				#it is not present and hypothesis is not present
 				TN += 1
 			elif not o_is_0 and h_is_0:
-				#we guess positive but it is negative
-				FP += 1
-			elif o_is_0 and not h_is_0:
-				#we guess negative but it is positive
+				#edge exists (positive), but we guess 0
 				FN += 1
+			elif o_is_0 and not h_is_0:
+				#edge does not exist (negative) but we guess positive
+				FP += 1
 			else:
 				print(hypothesis_graph, omega)
 				assert False, "case bad"
@@ -212,7 +215,7 @@ def random_graph(p, d):
 		for i in range(p):
 			for j in range(i+1, p):
 				if np.random.rand() <= d:
-					B[i,j] = np.random.rand()
+					B[i,j] = 1.
 					B[j, i] = B[i,j]
 	delta = np.real(sorted(np.linalg.eigvals(B))[-1])
 	omega = 1.05 * delta * np.eye(B.shape[0]) - B
