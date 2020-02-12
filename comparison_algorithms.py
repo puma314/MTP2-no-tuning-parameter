@@ -186,7 +186,6 @@ def attr_threshold_new(prec, q):
 """
 
 ### Stability selection related
-
 """
 def stability_selection(algo, data, regularization_params, NUM_SUBSAMPLES=10):
     N, p = data.shape
@@ -237,7 +236,7 @@ def get_stability_edges(probs, lambs, pi):
     return true_edges
 
 def stability_wrapper(algo, **algorithm_args):
-    """Given an algorithm, returns a stability selection version of it."""
+    # Given an algorithm, returns a stability selection version of it.
     def f(X, lambdas, pi, num_subsamples):
         results, probs = stability_selection(algo, X, lambdas, num_subsamples)
         res = get_stability_edges(probs, lambdas, pi)
