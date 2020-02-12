@@ -1,3 +1,0 @@
-scp uma@uhlergroup.mit.edu:~/MTP2-algorithm/server_p_50* .
-
-scp uma@uhlergroup.mit.edu:~/MTP2-algorithm/ROC* .

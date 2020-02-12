@@ -1,2 +1,0 @@
-random graph needs to be binary matrix if we want accurate benchmarks
-
