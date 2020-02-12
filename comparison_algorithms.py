@@ -52,7 +52,7 @@ def TIGER(X):
     return hypothesis_graph
 
 
-def CMIT(X, xi, eta=2):
+def CMIT(X, xi, eta):
     print('Running anand with eta = {}'.format(eta))
     N, p = X.shape
     sample_cov = np.cov(X.T)
@@ -82,19 +82,19 @@ def CMIT(X, xi, eta=2):
     
     return hypothesis_graph
 
-def nbsel(data, lamb):
-    N, p = data.shape
+def nbsel(X, lamb):
+    N, p = X.shape
     model = sklearn.linear_model.Lasso(alpha = lamb)
     res = np.zeros((p,p))
     for i in range(p):
-        node = data[:, i]
+        node = X[:, i]
         assert node.shape == (N,)
         if i == 0:
-            other_nodes = data[:, 1:]
+            other_nodes = X[:, 1:]
         elif i == p-1:
-            other_nodes = data[:, :p-1]
+            other_nodes = X[:, :p-1]
         else:
-            other_nodes = np.hstack((data[:,:i], data[:,i+1:]))
+            other_nodes = np.hstack((X[:,:i], X[:,i+1:]))
         assert other_nodes.shape == (N, p-1)
         model.fit(other_nodes, node)
         other_nodes_list = list(range(p))
@@ -105,7 +105,7 @@ def nbsel(data, lamb):
                 res[on, i] = 1
     return res
 
-
+"""
 def SH(data, lambdas):
     cov = np.cov(data.T)
     prec = run_single_MTP(cov)
@@ -151,11 +151,62 @@ def attr_threshold_new(prec, q):
                 new_prec[i, j] = 0
                 new_prec[j, i] = 0
     return new_prec
+"""
 
-def stability_wrapper(algo):
+### Stability selection related
+
+def stability_selection(algo, data, regularization_params, NUM_SUBSAMPLES=10):
+    N, p = data.shape
+    edges = []
+    for i in range(p):
+        for j in range(i+1, p):
+            edges.append((i,j))
+    subN = N//2
+    results = {} #regulariation_param, [res_1, res_2, ... res_SUBSAMPLES]
+    probs = {} #(lamb)(e) = prob of existing given lambda
+    for lamb in regularization_params:
+        print('Working on', lamb)
+        results[lamb] = []
+        for _ in range(NUM_SUBSAMPLES):
+            batch = get_batch(data, subN)
+            if hasattr(lamb, '__iter__'):
+                res = algo(batch, *lamb)
+            else:
+                res = algo(batch, lamb)
+            results[lamb].append(res)
+            if res is None:
+                break
+        if results[lamb][-1] is not None:
+            probs[lamb] = defaultdict(int)
+            for res in results[lamb]:
+                if res is None:
+                    continue
+                for e in edges:
+                    e_val = res[e]
+                    if e_val != 0.:
+                        probs[lamb][e] += 1
+            for e in edges:
+                probs[lamb][e] /= len(results[lamb])
+    return results, probs
+
+def get_stability_edges(probs, lambs, pi):
+    first_key = list(probs.keys())[0]
+    edges = list(probs[first_key].keys())
+    edges_plot = defaultdict(list)
+    for e in edges:
+        for l in lambs:
+            if l in probs:
+                edges_plot[e].append(probs[l][e])
+    true_edges = set()
+    for e, pis in edges_plot.items():
+        if max(pis) >= pi:
+            true_edges.add(e)
+    return true_edges
+
+def stability_wrapper(algo, **algorithm_args):
     """Given an algorithm, returns a stability selection version of it."""
-    def f(data, lambdas, pi, num_subsamples):
-        results, probs = stability_selection(algo, data, lambdas, num_subsamples)
+    def f(X, lambdas, pi, num_subsamples):
+        results, probs = stability_selection(algo, X, lambdas, num_subsamples)
         res = get_stability_edges(probs, lambdas, pi)
         n, p = data.shape
         omega = np.zeros((p,p))
@@ -166,10 +217,10 @@ def stability_wrapper(algo):
     return f
 
 def stability_nbsel(X, **kwargs):
-    return stability_wrapper(nbsel)(X, **args)
+    return stability_wrapper(nbsel)(X, **kwargs)
 
 def stability_CMIT(X, **kwargs):
-    return stability_wrapper(CMIT)(X, **args)
+    return stability_wrapper(CMIT)(X, **kwargs)
 
 def stability_glasso(X, **kwargs):
-    return stability_wrapper(glasso)(X, **args)
+    return stability_wrapper(glasso)(X, **kwargs)
