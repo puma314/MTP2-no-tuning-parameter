@@ -6,10 +6,10 @@ labels = {
 	'SH': 'SH', 
 	'nbsel': 'nbsel', 
 	'glasso': 'glasso', 
-	'anand': 'CMIT',
+	'CMIT': 'CMIT',
 	'our_85':  "Our algorithm: " + r'$\gamma=0.85$',
-	'tiger': 'TIGER',
-	'clime': 'CLIME'
+	'TIGER': 'TIGER',
+	'CLIME': 'CLIME'
 }
 
 # algo_name to marker type
@@ -20,10 +20,10 @@ markers = {
 	'SH': '>', 
 	'nbsel': '^',
 	'glasso': 'v',
-	'anand': 'd', 
+	'CMIT': 'd', 
 	'our_85': '*', 
-	'tiger': '<', 
-	'clime': '*'
+	'TIGER': '<', 
+	'CLIME': '*'
 }
 
 # algo_name to line-style
@@ -34,10 +34,10 @@ linestyles = {
 	'SH': 'dashdot', 
 	'nbsel': 'dotted', 
 	'glasso': (0, (3, 1, 1, 1)), 
-	'anand': 'dashed',
+	'CMIT': 'dashed',
 	'our_85': 'solid', 
-	'tiger': 'dotted', 
-	'clime': 'solid'
+	'TIGER': 'dotted', 
+	'CLIME': 'solid'
 }
 
 # algo_name to colors
@@ -45,13 +45,13 @@ colors = {
     'algorithm_1': 'C0',
     'glasso': 'C1',
     'nbsel': 'C2',
-    'anand': 'C3',
+    'CMIT': 'C3',
     'SH': 'C4',
     'SH_best': 'C6',
     'SH_0.7': 'C6',
     'our_85': 'C9',
-    'tiger': 'C8',
-    'clime': 'C7'
+    'TIGER': 'C8',
+    'CLIME': 'C7'
 }
 
 class PlotParams():

@@ -5,13 +5,14 @@ in our paper.
 """
 
 from main_algorithm import no_tuning_parameters  # This is our algorithm.
+from comparison_algorithms import CLIME, TIGER, CMIT, nbsel, glasso
 from utils_graphing import generate_graph, get_samples
 from utils_plotting import get_dataframe, generate_figure_1
 
 # Experiment related settings.
-p = 10
+p = 100
 N_list = [25, 50, 100, 200, 500, 1000]
-NUM_REPLICATIONS = 20
+NUM_REPLICATIONS = 2
 
 # Set which graph you want to plot and what the parameters of the graph are.
 graph_type = 'chain'
@@ -20,10 +21,17 @@ graph_params = {"p": p}  # Include any other parameters you want.
 # Set which algorithms you want to use along with their special parameters
 # (if needed).
 ALL_ALGORITHMS = {
-	"algorithm_1": no_tuning_parameters
-	# nbsel, glasso excluded for now
+	"algorithm_1": no_tuning_parameters,
+	"glasso": glasso,
+	"nbsel": nbsel,
+	"CMIT": CMIT,
+	"TIGER": TIGER,
+	"CLIME": CLIME
 }
 algorithm_parameters = {
+	"glasso": {"lamb": 0.1},
+	"nbsel": {"lamb": 0.1},
+	"CMIT": {"xi": 0.1, "eta": 2},
 }
 
 results = {}

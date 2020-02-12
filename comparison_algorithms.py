@@ -2,21 +2,27 @@ import os
 import numpy as np
 import uuid
 import sklearn.linear_model
+import sklearn.covariance
+from subprocess import Popen, PIPE
+import warnings
+import itertools
+import main_algorithm
 
 def get_uuid():
     return uuid.UUID(bytes=os.urandom(16), version=4)
 
 def CLIME(X):
     X = X - np.mean(X,axis=0)
+    _, p = X.shape
     uid = get_uuid()
     in_name = os.path.join(os.getcwd(), "rscripts", "clime_in_{}.npy".format(uid))
     out_name = os.path.join(os.getcwd(), "rscripts", "clime_out_{}.npy".format(uid))
     np.save(in_name, X)
     args = ['Rscript', 'rscripts/clime.R', str(uid)]
-    p = Popen(args, stdout=PIPE)
+    process = Popen(args, stdout=PIPE)
     output = []
-    while p.poll() is None:
-        lin = p.stdout.readline()
+    while process.poll() is None:
+        lin = process.stdout.readline()
         output.append(lin)
         print(lin)
     output_str = [x.decode('utf-8') for x in output] 
@@ -34,16 +40,19 @@ def CLIME(X):
 
 
 def TIGER(X):
-    uid = get_uuid()
     X = X - np.mean(X, axis = 0)
-    np.save(os.path.join(os.getcwd(), "rscripts", "tiger_in_{}.npy".format(uid)), X)
+    _, p = X.shape
+    uid = get_uuid()
+    in_name = os.path.join(os.getcwd(), "rscripts", "tiger_in_{}.npy".format(uid))
+    out_name = os.path.join(os.getcwd(), "rscripts", "tiger_out_{}.npy".format(uid))
+    np.save(in_name, X)
     args = ['Rscript', 'rscripts/tiger.R', str(uid)]
-    p = Popen(args, stdout=PIPE)
-    while p.poll() is None:
-        print(p.stdout.readline())
-    omega = np.load(os.path.join(os.getcwd(), "tiger_out_{}.npy".format(uid)))
-    os.remove(os.path.join(os.getcwd(), "rscripts", "tiger_in_{}.npy".format(uid)))
-    os.remove(os.path.join(os.getcwd(), "rscripts", "tiger_out_{}.npy".format(uid)))
+    process = Popen(args, stdout=PIPE)
+    while process.poll() is None:
+        print(process.stdout.readline())
+    omega = np.load(out_name)
+    os.remove(in_name)
+    os.remove(out_name)
     hypothesis_graph = np.ones((p,p))
     for i in range(p):
         for j in range(p):
@@ -72,7 +81,7 @@ def CMIT(X, xi, eta):
                 all_subsets = list(itertools.combinations(vertices, l))
                 for subset in all_subsets:
                     subset_i_j = sorted(subset + (i,j))
-                    pc = np.abs(partial_cov(sample_cov, subset_i_j, i, j))
+                    pc = np.abs(main_algorithm.partial_cov(sample_cov, subset_i_j, i, j))
                     if pc <= xi:
                         edge_exists = False
                         break
@@ -105,6 +114,29 @@ def nbsel(X, lamb):
                 res[on, i] = 1
     return res
 
+def glasso(data, lamb):
+    try:
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            cov = np.cov(data.T)
+            glasso = sklearn.covariance.graphical_lasso(cov, alpha=lamb, mode='lars')
+            if len(w) > 0 and issubclass(w[-1].category, sklearn.exceptions.ConvergenceWarning):
+                #print(str(w[-1].message))
+                print("graphical_lasso ConvergenceWarning: {}".format(lamb))
+                return None
+            _, omega_hat = glasso
+            non_zero = np.nonzero(omega_hat)
+            N, p = data.shape
+            A = np.zeros((p,p))
+            A[non_zero] = 1
+            return A
+            #return omega_hat
+    except FloatingPointError:
+        print("graphical_lasso FloatingPointError: {}".format(lamb))
+        return None
+    except OverflowError:
+        print("graphical_lasso OverflowError: {}".format(lamb))
+        return None
 """
 def SH(data, lambdas):
     cov = np.cov(data.T)
@@ -155,6 +187,7 @@ def attr_threshold_new(prec, q):
 
 ### Stability selection related
 
+"""
 def stability_selection(algo, data, regularization_params, NUM_SUBSAMPLES=10):
     N, p = data.shape
     edges = []
@@ -224,3 +257,4 @@ def stability_CMIT(X, **kwargs):
 
 def stability_glasso(X, **kwargs):
     return stability_wrapper(glasso)(X, **kwargs)
+"""
