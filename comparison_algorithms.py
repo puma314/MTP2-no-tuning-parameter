@@ -7,6 +7,7 @@ from subprocess import Popen, PIPE
 import warnings
 import itertools
 import main_algorithm
+import scipy
 
 def get_uuid():
     return uuid.UUID(bytes=os.urandom(16), version=4)
@@ -137,22 +138,17 @@ def glasso(data, lamb):
     except OverflowError:
         print("graphical_lasso OverflowError: {}".format(lamb))
         return None
-"""
-def SH(data, lambdas):
-    cov = np.cov(data.T)
+
+def SH(X, q):
+    cov = np.cov(X.T)
     prec = run_single_MTP(cov)
-    results = {}
-
-    for q in lambdas:
-        results[q] = attr_threshold_new(prec, q)
-
-    return results, prec
+    return attr_threshold_new(prec, q)
 
 def run_single_MTP(sample_cov):
     #mkdir MTP2-finance/matlab/data
     og_dir = os.getcwd()
     try:
-        os.chdir("../MTP2-finance/matlab")
+        os.chdir("./matlab")
         mdict = {'S': sample_cov}
         inp_path = './data/algo_sample_cov.mat'
         out_path = './data/algo_est.mat'
@@ -183,77 +179,3 @@ def attr_threshold_new(prec, q):
                 new_prec[i, j] = 0
                 new_prec[j, i] = 0
     return new_prec
-"""
-
-### Stability selection related
-"""
-def stability_selection(algo, data, regularization_params, NUM_SUBSAMPLES=10):
-    N, p = data.shape
-    edges = []
-    for i in range(p):
-        for j in range(i+1, p):
-            edges.append((i,j))
-    subN = N//2
-    results = {} #regulariation_param, [res_1, res_2, ... res_SUBSAMPLES]
-    probs = {} #(lamb)(e) = prob of existing given lambda
-    for lamb in regularization_params:
-        print('Working on', lamb)
-        results[lamb] = []
-        for _ in range(NUM_SUBSAMPLES):
-            batch = get_batch(data, subN)
-            if hasattr(lamb, '__iter__'):
-                res = algo(batch, *lamb)
-            else:
-                res = algo(batch, lamb)
-            results[lamb].append(res)
-            if res is None:
-                break
-        if results[lamb][-1] is not None:
-            probs[lamb] = defaultdict(int)
-            for res in results[lamb]:
-                if res is None:
-                    continue
-                for e in edges:
-                    e_val = res[e]
-                    if e_val != 0.:
-                        probs[lamb][e] += 1
-            for e in edges:
-                probs[lamb][e] /= len(results[lamb])
-    return results, probs
-
-def get_stability_edges(probs, lambs, pi):
-    first_key = list(probs.keys())[0]
-    edges = list(probs[first_key].keys())
-    edges_plot = defaultdict(list)
-    for e in edges:
-        for l in lambs:
-            if l in probs:
-                edges_plot[e].append(probs[l][e])
-    true_edges = set()
-    for e, pis in edges_plot.items():
-        if max(pis) >= pi:
-            true_edges.add(e)
-    return true_edges
-
-def stability_wrapper(algo, **algorithm_args):
-    # Given an algorithm, returns a stability selection version of it.
-    def f(X, lambdas, pi, num_subsamples):
-        results, probs = stability_selection(algo, X, lambdas, num_subsamples)
-        res = get_stability_edges(probs, lambdas, pi)
-        n, p = data.shape
-        omega = np.zeros((p,p))
-        for e in res:
-            omega[e] = 1
-            omega[e[::-1]] = 1
-        return omega, results, probs
-    return f
-
-def stability_nbsel(X, **kwargs):
-    return stability_wrapper(nbsel)(X, **kwargs)
-
-def stability_CMIT(X, **kwargs):
-    return stability_wrapper(CMIT)(X, **kwargs)
-
-def stability_glasso(X, **kwargs):
-    return stability_wrapper(glasso)(X, **kwargs)
-"""

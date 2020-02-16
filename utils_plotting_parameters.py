@@ -9,7 +9,12 @@ labels = {
 	'CMIT': 'CMIT',
 	'our_85':  "Our algorithm: " + r'$\gamma=0.85$',
 	'TIGER': 'TIGER',
-	'CLIME': 'CLIME'
+	'CLIME': 'CLIME',
+	'stability_nbsel': 'stability nbsel', 
+	'stability_glasso': 'stability glasso', 
+	'stability_SH': 'stability SH',
+	'stability_CMIT': 'stability CMIT'
+
 }
 
 # algo_name to marker type
@@ -23,7 +28,11 @@ markers = {
 	'CMIT': 'd', 
 	'our_85': '*', 
 	'TIGER': '<', 
-	'CLIME': '*'
+	'CLIME': '*',
+	'stability_nbsel': '^',
+	'stability_glasso': 'v',
+	'stability_SH': '>',
+	'stability_CMIT': 'd'
 }
 
 # algo_name to line-style
@@ -37,7 +46,11 @@ linestyles = {
 	'CMIT': 'dashed',
 	'our_85': 'solid', 
 	'TIGER': 'dotted', 
-	'CLIME': 'solid'
+	'CLIME': 'solid',
+	'stability_nbsel': 'dotted',
+	'stability_glasso': (0, (3, 1, 1, 1)), 
+	'stability_SH': 'dashdot',
+	'stability_CMIT': 'dashed'
 }
 
 # algo_name to colors
@@ -51,7 +64,12 @@ colors = {
     'SH_0.7': 'C6',
     'our_85': 'C9',
     'TIGER': 'C8',
-    'CLIME': 'C7'
+    'CLIME': 'C7',
+    'stability_nbsel': 'C2',
+    'stability_glasso': 'C1',
+    'stability_SH': 'C4',
+    'stability_CMIT': 'C3'
+
 }
 
 class PlotParams():
