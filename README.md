@@ -10,4 +10,13 @@ Algorithm 1 of the paper is implemented in `main_algorithm.py` in this repositor
 
 Other algorithms that we compare to in our paper are contained in `comparison_algorithms.py`. 
 
+To run Slawski and Hein, you must have the `matlab` command in your command line. First install matlab, then to add it to your command line, you can add the following command to your `~/.bash_profile` (or bash_rc):
+`export PATH=$PATH:/Applications/MATLAB_R2018a.app/bin` (or use whatever path your matlab installation is located in, this might differ based on your version and where you installed it.)
+
+To test that the command line works, please run the following command:
+
+`matlab -nodisplay -nodesktop`.
+
+You should get a `>>>` prompt in the Matlab interpreter.
+
 

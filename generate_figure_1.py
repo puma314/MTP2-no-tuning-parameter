@@ -9,9 +9,12 @@ from comparison_algorithms import CLIME, TIGER, CMIT, nbsel, glasso, SH
 from stability_algorithms import stability_nbsel, stability_glasso, stability_CMIT, stability_SH
 from utils_graphing import generate_graph, get_samples
 from utils_plotting import get_dataframe, generate_figure_1
+import time
+import pickle
+import os
 
 # Experiment related settings.
-p = 10
+p = 100
 N_list = [25, 50, 100, 200, 500, 1000]
 NUM_REPLICATIONS = 20
 
@@ -35,7 +38,7 @@ ALL_ALGORITHMS = {
 	"stability_SH": stability_SH(2, 0.8),
 	"stability_glasso": stability_glasso(10, 0.8),
 	"stability_nbsel": stability_nbsel(10, 0.8),
-	"stability_CMIT": stability_CMIT(10, 0.8),
+	"stability_CMIT": stability_CMIT(10, 0.8),  # 201
 }
 
 algorithm_parameters = {
@@ -58,17 +61,25 @@ algorithm_parameters = {
 	}},
 }
 
+output_dir = "chain_test"
 results = {}
 
-for N in N_list:
-	for repl in range(NUM_REPLICATIONS):
+for repl in range(NUM_REPLICATIONS):
+	for N in N_list:
 		omega = generate_graph(graph_type, **graph_params)
 		samples = get_samples(omega, N)
 		for algo_name, algo in ALL_ALGORITHMS.items():
+			start = time.time()
 			algo_params = algorithm_parameters.get(algo_name, {})
 			algorithm_results = algo(samples, **algo_params)
 			omega_hat = algorithm_results
+			save_file = os.path.join(output_dir, "{}_{}_{}.pkl".format(algo_name, N, repl))
+			with open(save_file, 'wb') as f:
+				pickle.dump((omega, omega_hat), f)
+			print(algo_name, N, repl)
+			print(time.time() - start)
 			results[(algo_name, N, repl)] = (omega, omega_hat)
+
 
 results_df = get_dataframe(results)
 generate_figure_1(results_df, graph_type)
