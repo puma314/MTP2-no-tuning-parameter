@@ -90,12 +90,32 @@ def decay(p):
 	assert is_MTP2(omega)
 	return omega
 
+def random_graph(p, d):
+	np.random.seed(random.SystemRandom().randint(0, 2**32-2))
+	B = np.zeros((p,p))
+
+	while np.sum(B) == 0.:
+		B = np.zeros((p,p))
+		for i in range(p):
+			for j in range(i+1, p):
+				if np.random.rand() <= d:
+					B[i,j] = 1.
+					B[j, i] = B[i,j]
+	delta = np.real(sorted(np.linalg.eigvals(B))[-1])
+	omega = 1.05 * delta * np.eye(B.shape[0]) - B
+	#print(np.linalg.eigvals(omega))
+	sigma = np.linalg.inv(omega)
+	D = np.diag(np.power(np.diag(sigma), -0.5))
+	D_inv = np.linalg.inv(D)
+	return D_inv.dot(omega).dot(D_inv)
+
 GRAPH_TYPE_MAP = {
 	"grid": grid_graph,
 	"grid_3d": grid_3D,
 	"chain": chain,
 	"star": star,
-	"decay": decay
+	"decay": decay,
+	"random": random_graph,
 }
 
 def generate_graph(graph_type, **kwargs):

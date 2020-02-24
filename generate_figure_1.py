@@ -14,13 +14,17 @@ import pickle
 import os
 
 # Experiment related settings.
-p = 100
+p = 10
 N_list = [25, 50, 100, 200, 500, 1000]
 NUM_REPLICATIONS = 20
+output_dir = "grid_p_100"  # IMPORTANT: make sure this directory already exists.
 
 # Set which graph you want to plot and what the parameters of the graph are.
-graph_type = 'chain'
+graph_type = 'grid'
 graph_params = {"p": p}  # Include any other parameters you want.
+
+# graph_type = 'random'
+# graph_params = {"p": p, "d": 0.01}
 
 # Set which algorithms you want to use along with their special parameters
 # (if needed).
@@ -38,7 +42,7 @@ ALL_ALGORITHMS = {
 	"stability_SH": stability_SH(2, 0.8),
 	"stability_glasso": stability_glasso(10, 0.8),
 	"stability_nbsel": stability_nbsel(10, 0.8),
-	"stability_CMIT": stability_CMIT(10, 0.8),  # 201
+	"stability_CMIT": stability_CMIT(10, 0.8),
 }
 
 algorithm_parameters = {
@@ -61,7 +65,8 @@ algorithm_parameters = {
 	}},
 }
 
-output_dir = "chain_test"  # IMPORTANT: make sure this directory already exists.
+print('hi')
+
 results = {}
 
 for repl in range(NUM_REPLICATIONS):
