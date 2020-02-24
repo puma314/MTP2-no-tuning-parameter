@@ -21,6 +21,22 @@ To test that the command line works, please run the following command:
 
 You should get a `>>>` prompt in the Matlab interpreter.
 
+### R (for TIGER and CLIME algorithms)
+
+Make sure that you have installed `R` and have a command line version of `R` installed (callable by `RSript`). To run TIGER and CLIME you need a few R packages listed below:
+
+- reticulate
+- RcppCNPy
+- clime (for CLIME)
+- flare (for TIGER)
+
+To install R packages, in an R shell (either in R studio or in the command line version of R), type
+
+`> install.packages("reticulate")`
+`> install.packages("RcppCNPy")`
+`> install.packages("clime")`
+`> install.packages("flare")`
+
 
 # Generating Figure 1
 
