@@ -61,7 +61,7 @@ algorithm_parameters = {
 	}},
 }
 
-output_dir = "chain_test"
+output_dir = "chain_test"  # IMPORTANT: make sure this directory already exists.
 results = {}
 
 for repl in range(NUM_REPLICATIONS):

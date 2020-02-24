@@ -10,6 +10,8 @@ Algorithm 1 of the paper is implemented in `main_algorithm.py` in this repositor
 
 Other algorithms that we compare to in our paper are contained in `comparison_algorithms.py`. 
 
+### Matlab (for Slawski and Hein algorithm)
+
 To run Slawski and Hein, you must have the `matlab` command in your command line. First install matlab, then to add it to your command line, you can add the following command to your `~/.bash_profile` (or bash_rc):
 `export PATH=$PATH:/Applications/MATLAB_R2018a.app/bin` (or use whatever path your matlab installation is located in, this might differ based on your version and where you installed it.)
 
@@ -20,3 +22,6 @@ To test that the command line works, please run the following command:
 You should get a `>>>` prompt in the Matlab interpreter.
 
 
+# Generating Figure 1
+
+To generate Figure 1 of the paper, run `generate_figure_.py` with the relevant arguments. Generally you want to make sure that the graph type is correct and that `p`, the number of nodes in the graph, is set properly. Also specify the output directory where you want the intermediate results to be saved, and make sure that it exists.
