@@ -40,4 +40,4 @@ To install R packages, in an R shell (either in R studio or in the command line 
 
 # Generating Figure 1
 
-To generate Figure 1 of the paper, run `generate_figure_.py` with the relevant arguments. Generally you want to make sure that the graph type is correct and that `p`, the number of nodes in the graph, is set properly. Also specify the output directory where you want the intermediate results to be saved, and make sure that it exists.
+To generate Figure 1 of the paper, run `generate_figure_.py` with the relevant arguments (specified at the top of the script). Generally you want to make sure that the graph type is correct and that `p`, the number of nodes in the graph, is set properly. Also specify the output directory where you want the intermediate results to be saved, and make sure that it exists.

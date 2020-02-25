@@ -14,17 +14,17 @@ import pickle
 import os
 
 # Experiment related settings.
-p = 10
+p = 100
 N_list = [25, 50, 100, 200, 500, 1000]
 NUM_REPLICATIONS = 20
-output_dir = "grid_p_100"  # IMPORTANT: make sure this directory already exists.
+output_dir = "random_p_100"  # IMPORTANT: make sure this directory already exists.
 
 # Set which graph you want to plot and what the parameters of the graph are.
-graph_type = 'grid'
-graph_params = {"p": p}  # Include any other parameters you want.
+# graph_type = 'grid'
+# graph_params = {"p": p}  # Include any other parameters you want.
 
-# graph_type = 'random'
-# graph_params = {"p": p, "d": 0.01}
+graph_type = 'random'
+graph_params = {"p": p, "d": 0.01}
 
 # Set which algorithms you want to use along with their special parameters
 # (if needed).
@@ -33,6 +33,7 @@ ALL_ALGORITHMS = {
 	"algorithm_1": no_tuning_parameters,
 	"TIGER": TIGER,
 	# "CLIME": CLIME,
+	# "algorithm_1_gamma_85": no_tuning_parameters,
 # Algorithms with tuning parameters
 	# "SH": SH,
 	# "glasso": glasso,
@@ -46,6 +47,7 @@ ALL_ALGORITHMS = {
 }
 
 algorithm_parameters = {
+	"algorithm_1_gamma_85": {"gamma": 0.85},
 	"SH": {"q": 0.8},
 	"glasso": {"lamb": 1.},
 	"nbsel": {"lamb": 0.1},
@@ -64,8 +66,6 @@ algorithm_parameters = {
 		"eta": [1, 1, 1, 1, 1, 1]
 	}},
 }
-
-print('hi')
 
 results = {}
 

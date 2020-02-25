@@ -44,7 +44,7 @@ def remove_adj_i(p, adj_i, i, j):
     poss.remove(j)
     return poss
 
-def no_tuning_parameters(X, gamma=0.85):
+def no_tuning_parameters(X, gamma=7./9):
     """Implementation of Algorithm 1 in paper.
 
     This algorithm is a tuning parameter free algorithm which given
