@@ -17,21 +17,21 @@ import os
 p = 100
 N_list = [25, 50, 100, 200, 500, 1000]
 NUM_REPLICATIONS = 20
-output_dir = "random_p_100"  # IMPORTANT: make sure this directory already exists.
+output_dir = "chain_p_100"  # IMPORTANT: make sure this directory already exists.
 
 # Set which graph you want to plot and what the parameters of the graph are.
-# graph_type = 'grid'
-# graph_params = {"p": p}  # Include any other parameters you want.
+graph_type = 'chain'
+graph_params = {"p": p}  # Include any other parameters you want.
 
-graph_type = 'random'
-graph_params = {"p": p, "d": 0.01}
+# graph_type = 'random'
+# graph_params = {"p": p, "d": 0.01}
 
 # Set which algorithms you want to use along with their special parameters
 # (if needed).
 ALL_ALGORITHMS = {
 # Tuning parameter free algorithms
 	"algorithm_1": no_tuning_parameters,
-	# "algorithm_1_gamma_85": no_tuning_parameters,
+	"algorithm_1_gamma_85": no_tuning_parameters,
 	"TIGER": TIGER,
 	# "CLIME": CLIME,
 # Algorithms with tuning parameters

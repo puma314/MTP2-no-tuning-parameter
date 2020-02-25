@@ -14,7 +14,7 @@ setwd(new_dir)
 uid = commandArgs(trailingOnly=TRUE)
 inp = sprintf("clime_in_%s.npy", uid)
 
-X <- npyLoad(inp, dotranspose=FALSE)
+X <- npyLoad(inp, dotranspose=TRUE)
 print("Loaded X")
 n <- NROW(X)
 p <- NCOL(X)

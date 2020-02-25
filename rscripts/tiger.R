@@ -6,12 +6,13 @@ setwd(new_dir)
 
 uid = commandArgs(trailingOnly=TRUE)
 inp = sprintf("tiger_in_%s.npy", uid)
-X <- npyLoad(inp, dotranspose=FALSE)
+X <- npyLoad(inp, dotranspose=TRUE)
 print("Loaded X")
 d <- NCOL(X)
 n <- NROW(X)
 opt_lambda <- sqrt(log(d)/n)
 res <- sugm(data=X,
+            lambda=opt_lambda,
             method='tiger',
             standardize=FALSE,
             perturb=FALSE)
