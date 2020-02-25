@@ -78,6 +78,11 @@ def stability_CMIT(num_subsamples, pi):
 		comparison_algorithms.CMIT, num_subsamples, pi)
 
 def stability_SH(num_subsamples, pi):
+	"""Because running SH is computationally expensive, we compute the MTP2 estimate
+	of the matrix once and save it. Then we compute the sliding threshold version of
+	Slawski and Hein using the saved matrix. This saves significant running time
+	in stability selection.
+	"""
 	def f(X, algo_params_dict):
 		assert 'q' in algo_params_dict
 		thresholds = algo_params_dict['q']
