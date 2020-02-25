@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 import warnings
 import itertools
 import main_algorithm
-import scipy
+from scipy import io as sio
 
 def get_uuid():
     return uuid.UUID(bytes=os.urandom(16), version=4)
@@ -152,10 +152,10 @@ def run_single_MTP(sample_cov):
         mdict = {'S': sample_cov}
         inp_path = './data/algo_sample_cov.mat'
         out_path = './data/algo_est.mat'
-        scipy.io.savemat(inp_path, mdict)
+        sio.savemat(inp_path, mdict)
         command = "matlab -nodisplay -nodesktop -r \"computeomega '{}' '{}'; exit;\"".format(inp_path, out_path)
         os.system(command)
-        ans = scipy.io.loadmat('./data/algo_est.mat')['Omega']
+        ans = sio.loadmat('./data/algo_est.mat')['Omega']
     finally: 
         os.chdir(og_dir)
     return ans
