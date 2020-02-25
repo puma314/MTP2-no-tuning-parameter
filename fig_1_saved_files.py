@@ -12,26 +12,29 @@ N_list = [25, 50, 100, 200, 500, 1000]
 NUM_REPLICATIONS = 20
 graph_type = 'chain'
 
-ALL_ALGORITHMS = {
+
+# A list of all the algorithms you want to plot.
+ALL_ALGORITHMS = [
 # Tuning parameter free algorithms
-	"algorithm_1": None,
-	"TIGER": None,
-	# "CLIME": CLIME,
+	"algorithm_1",
+	# "algorithm_1_gamma_85",
+	"TIGER",
+	# "CLIME",
 # Algorithms with tuning parameters
-	# "SH": SH,
-	# "glasso": glasso,
-	# "nbsel": nbsel,
-	# "CMIT": CMIT,
+	# "SH",
+	# "glasso",
+	# "nbsel",
+	# "CMIT",
 # Stability version of algorithms
-	"stability_SH": None,
-	"stability_glasso": None,
-	"stability_nbsel": None,
-	"stability_CMIT": None,
-}
+	"stability_SH",
+	"stability_glasso",
+	"stability_nbsel",
+	"stability_CMIT",
+]
 
 for repl in range(NUM_REPLICATIONS):
 	for N in N_list:
-		for algo_name, _ in ALL_ALGORITHMS.items():
+		for algo_name in ALL_ALGORITHMS.items():
 			save_file = os.path.join(output_dir, "{}_{}_{}.pkl".format(algo_name, N, repl))
 			if not os.path.exists(save_file):
 				continue

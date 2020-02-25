@@ -31,9 +31,9 @@ graph_params = {"p": p, "d": 0.01}
 ALL_ALGORITHMS = {
 # Tuning parameter free algorithms
 	"algorithm_1": no_tuning_parameters,
+	# "algorithm_1_gamma_85": no_tuning_parameters,
 	"TIGER": TIGER,
 	# "CLIME": CLIME,
-	# "algorithm_1_gamma_85": no_tuning_parameters,
 # Algorithms with tuning parameters
 	# "SH": SH,
 	# "glasso": glasso,
